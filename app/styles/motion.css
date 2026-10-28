@@ -1,0 +1,180 @@
+/*
+ * Motion support. GSAP (hooks/useGsap.ts) animates transform and opacity only; this file holds
+ * the layers it animates and the reduced-motion overrides.
+ */
+
+/* Page-load reveal: hidden only while scripting is on, so no-JS visitors still see everything.
+   If the JS never runs, the fallback animation shows the content after 2.5s. */
+@media (scripting: enabled) {
+  [data-reveal]:not([data-revealed]),
+  .glass-sheen:not([data-revealed]) {
+    opacity: 0;
+    animation: reveal-fallback 0s linear 2.5s forwards;
+  }
+}
+
+@keyframes reveal-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Glass sheen as a real element (fades in last on load) instead of ::before. */
+.glass.has-sheen::before {
+  content: none;
+}
+
+.glass-sheen {
+  position: absolute;
+  inset: 0 0 52% 0;
+  border-radius: inherit;
+  border-bottom-left-radius: 50% 22%;
+  border-bottom-right-radius: 50% 22%;
+  background: linear-gradient(to bottom, var(--sheen), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* KPI: aqua glow behind the card (pulses on change, brightens in RUSH MODE). */
+.kpi-glow {
+  position: absolute;
+  inset: -30% -10%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--aqua) 38%, transparent), transparent);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -2;
+}
+
+/* KPI: specular highlight that follows the cursor (moved with transform by GSAP). */
+.specular {
+  position: absolute;
+  left: -90px;
+  top: -90px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--sheen), transparent);
+  opacity: 0;
+  transition: opacity 240ms ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (hover: hover) {
+  .kpi:hover .specular {
+    opacity: 0.9;
+  }
+}
+
+/* Live feed: highlight layer on new rows (opacity animated, colour fixed). */
+.feed-flash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--aqua) 22%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Low stock: the single red ring pulse when a product first crosses its threshold. */
+.stock-ring {
+  position: absolute;
+  inset: -6px -8px;
+  border-radius: 14px;
+  border: 2px solid var(--alert);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Simulate: magnetic wrapper (the button inside is moved with transform). */
+.magnet {
+  display: inline-flex;
+  padding: 6px;
+  margin: -6px;
+}
+
+.btn-simulate {
+  will-change: transform;
+}
+
+/* RUSH MODE ticker: fixed at the top, so it never shifts the layout. */
+.rush-ticker {
+  position: fixed;
+  top: 12px;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: calc(100% - 32px);
+  max-width: 1384px;
+  margin: 0 auto;
+  padding: 8px 10px;
+  border-radius: 999px;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.rush-label {
+  flex: none;
+  min-height: 40px;
+  padding: 0 18px;
+  font-size: 19px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: default;
+}
+
+.rush-viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rush-track {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+}
+
+.rush-viewport.is-static .rush-track {
+  flex-wrap: wrap;
+  width: auto;
+}
+
+.rush-chip {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--row-alt);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rush-chip strong {
+  color: var(--text-strong);
+  font-weight: 800;
+}
+
+/* Reduced motion: no lifts, no CSS transitions on transform; GSAP code switches to opacity fades. */
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .heat-cell > rect {
+    transition: none;
+  }
+
+  .tile:hover,
+  .heat-cell.is-active > rect {
+    transform: none;
+  }
+
+  .specular {
+    display: none;
+  }
+}

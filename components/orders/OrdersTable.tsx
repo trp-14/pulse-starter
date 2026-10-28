@@ -49,7 +49,7 @@ export function OrdersTable({ initial }: { initial: OrdersPage }) {
   };
 
   return (
-    <section className="tile orders-tile" aria-labelledby="orders-title" id="orders">
+    <section className="tile orders-tile" aria-labelledby="orders-title" id="orders" data-reveal>
       <header className="tile-header">
         <h2 id="orders-title" className="tile-title">
           Orders
@@ -102,6 +102,7 @@ export function OrdersTable({ initial }: { initial: OrdersPage }) {
       ) : (
         !loading && (
           <div className="empty-state">
+            <span className="search-orb" aria-hidden="true" />
             <p>No orders match these filters</p>
             {hasActiveFilters(query) ? (
               <button type="button" className="btn-gloss" onClick={clearFilters}>

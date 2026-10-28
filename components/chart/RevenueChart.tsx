@@ -1,9 +1,11 @@
 'use client';
 
-import { useId, useMemo, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import type { RevenueSeries } from '@/types';
 import { useElementWidth } from '@/hooks/useElementWidth';
+import { gsap, MOTION, useGSAP } from '@/hooks/useGsap';
 import { usePolling } from '@/hooks/usePolling';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { formatCurrency, formatHourRange, formatInteger } from '@/lib/format';
 import { revenueSeriesSchema } from '@/lib/validation/responses';
 import { InlineError } from '@/components/ui/InlineError';
@@ -26,13 +28,50 @@ function nextIndex(key: string, current: number | null, count: number): number |
 
 export function RevenueChart({ initial }: { initial: RevenueSeries }) {
   const { data, error, refresh } = usePolling('/api/revenue', revenueSeriesSchema, initial, REVENUE_POLL_MS);
-  const [containerRef, width] = useElementWidth<HTMLDivElement>(FALLBACK_WIDTH);
+  const [containerRef, width, measured] = useElementWidth<HTMLDivElement>(FALLBACK_WIDTH);
   const geometry = useMemo(() => buildRevenueGeometry(data.buckets, width), [data.buckets, width]);
   const [active, setActive] = useState<number | null>(null);
   const baseId = svgId(useId());
   const areaGradient = `${baseId}-area`;
   const sphereGradient = `${baseId}-sphere`;
+  const revealClip = `${baseId}-reveal`;
   const point = active === null ? undefined : geometry.points.at(active);
+  const reduced = useReducedMotion();
+  const plotRef = useRef<SVGGElement>(null);
+  const clipRectRef = useRef<SVGRectElement>(null);
+  const lineRef = useRef<SVGPathElement>(null);
+  const areaRef = useRef<SVGPathElement>(null);
+  const drawn = useRef({ revealed: false, buckets: data.buckets, line: geometry.linePath, area: geometry.areaPath });
+
+  // Load: the line "draws in" left to right through a clip whose scaleX is animated (transform only).
+  // New data: the paths morph from the previous series (24 points each, same command structure).
+  // A width change alone just redraws (React has already set the new `d`).
+  useGSAP(
+    () => {
+      if (!measured || !plotRef.current || !clipRectRef.current) return;
+      const previous = drawn.current;
+      drawn.current = { revealed: true, buckets: data.buckets, line: geometry.linePath, area: geometry.areaPath };
+
+      if (!previous.revealed) {
+        if (reduced) gsap.fromTo(plotRef.current, { opacity: 0 }, { opacity: 1, duration: MOTION.fade });
+        else
+          gsap.fromTo(
+            clipRectRef.current,
+            { scaleX: 0 },
+            { scaleX: 1, transformOrigin: '0% 50%', duration: 1.1, ease: 'power2.out', delay: 0.25 },
+          );
+        return;
+      }
+      if (previous.buckets === data.buckets) return;
+      if (reduced) {
+        gsap.fromTo(plotRef.current, { opacity: 0.4 }, { opacity: 1, duration: MOTION.fade });
+        return;
+      }
+      gsap.fromTo(lineRef.current, { attr: { d: previous.line } }, { attr: { d: geometry.linePath }, duration: 0.8, ease: 'power2.inOut' });
+      gsap.fromTo(areaRef.current, { attr: { d: previous.area } }, { attr: { d: geometry.areaPath }, duration: 0.8, ease: 'power2.inOut' });
+    },
+    { dependencies: [measured, data.buckets, geometry.linePath, geometry.areaPath, reduced] },
+  );
 
   const onPointerMove = (event: PointerEvent<SVGRectElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -51,7 +90,7 @@ export function RevenueChart({ initial }: { initial: RevenueSeries }) {
     : 0;
 
   return (
-    <section className="tile chart-tile" aria-labelledby={`${baseId}-title`}>
+    <section className="tile chart-tile" aria-labelledby={`${baseId}-title`} data-reveal>
       <header className="tile-header">
         <h2 id={`${baseId}-title`} className="tile-title">
           Revenue · last 24 hours
@@ -78,7 +117,7 @@ export function RevenueChart({ initial }: { initial: RevenueSeries }) {
         onFocus={() => setActive((current) => current ?? geometry.points.length - 1)}
         onBlur={() => setActive(null)}
       >
-        <svg width={width} height={CHART_HEIGHT} className="chart-svg" aria-hidden="true">
+        <svg width={width} height={CHART_HEIGHT} className={measured ? 'chart-svg' : 'chart-svg is-pending'} aria-hidden="true">
           <defs>
             <linearGradient id={areaGradient} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" className="chart-area-stop-top" />
@@ -110,8 +149,13 @@ export function RevenueChart({ initial }: { initial: RevenueSeries }) {
                 {tick.label}
               </text>
             ))}
-            <path className="chart-area" d={geometry.areaPath} fill={`url(#${areaGradient})`} />
-            <path className="chart-line" d={geometry.linePath} />
+            <clipPath id={revealClip}>
+              <rect ref={clipRectRef} x={-4} y={-8} width={geometry.innerWidth + 8} height={geometry.innerHeight + 16} />
+            </clipPath>
+            <g ref={plotRef} clipPath={`url(#${revealClip})`}>
+              <path ref={areaRef} className="chart-area" d={geometry.areaPath} fill={`url(#${areaGradient})`} />
+              <path ref={lineRef} className="chart-line" d={geometry.linePath} />
+            </g>
             {point ? (
               <g className="chart-hover">
                 <line className="chart-crosshair" x1={point.x} x2={point.x} y1={0} y2={geometry.innerHeight} />
@@ -148,7 +192,8 @@ export function RevenueChart({ initial }: { initial: RevenueSeries }) {
           ? `${formatHourRange(point.bucket.hourStart)}: ${formatCurrency(point.bucket.revenue)}, ${point.bucket.orders} orders`
           : ''}
       </p>
-      <table className="sr-only">
+      <div className="sr-only">
+        <table>
         <caption>Revenue per hour, last 24 hours</caption>
         <thead>
           <tr>
@@ -166,7 +211,8 @@ export function RevenueChart({ initial }: { initial: RevenueSeries }) {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </section>
   );
 }

@@ -20,7 +20,7 @@ describe('insight endpoints', () => {
     const series = revenueSeriesSchema.parse(await response.json());
     expect(series.buckets).toHaveLength(24);
     series.buckets.slice(1).forEach((bucket, index) => {
-      expect(Date.parse(bucket.hourStart) - Date.parse(series.buckets[index]?.hourStart ?? '')).toBe(HOUR_MS);
+      expect(Date.parse(bucket.hourStart) - Date.parse(series.buckets.at(index)?.hourStart ?? '')).toBe(HOUR_MS);
     });
     expect(series.total).toBeCloseTo(series.buckets.reduce((sum, bucket) => sum + bucket.revenue, 0), 2);
   });
@@ -77,7 +77,7 @@ describe('revenue geometry', () => {
     expect(geometry.linePath.startsWith('M')).toBe(true);
     expect(geometry.areaPath.endsWith('Z')).toBe(true);
     expect(geometry.yTicks[0]?.label).toBe('$0');
-    expect(geometry.xTicks.length).toBe(6);
+    expect(geometry.xTicks).toHaveLength(6);
   });
 
   it('snaps the crosshair to the nearest hour', () => {

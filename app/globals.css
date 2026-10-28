@@ -1,1 +1,20 @@
 @import 'tailwindcss';
+@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/surfaces.css';
+@import './styles/layout.css';
+@import './styles/components.css';
+@import './styles/motion.css';
+
+/* Expose tokens to Tailwind utilities (bg-base, text-muted, …) without duplicating values. */
+@theme inline {
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --color-base: var(--base);
+  --color-well: var(--well);
+  --color-text: var(--text);
+  --color-strong: var(--text-strong);
+  --color-muted: var(--muted);
+  --color-aqua: var(--aqua);
+  --color-live: var(--live);
+  --color-alert: var(--alert);
+}

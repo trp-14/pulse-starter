@@ -6,7 +6,7 @@ import type { RevenueBucket } from '@/types';
 import { formatCompactCurrency, formatHour } from '@/lib/format';
 import { zonedParts } from '@/lib/time';
 
-export const CHART_HEIGHT = 240;
+export const CHART_HEIGHT = 300;
 export const CHART_MARGIN = { top: 16, right: 16, bottom: 30, left: 52 } as const;
 const X_TICK_EVERY_HOURS = 4;
 const Y_TICKS = 4;

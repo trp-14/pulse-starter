@@ -49,6 +49,8 @@ describe('readThrough', () => {
   });
 
   it('falls back to the loader when the cache is down', async () => {
+    // The fallback logs a warning by design; keep it out of the test output.
+    const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const failure = async () => {
       throw new Error('redis down');
     };
@@ -56,6 +58,8 @@ describe('readThrough', () => {
     const load = vi.fn(async () => ({ value: 7 }));
     expect(await readThrough('kpis', 10, schema, load, context)).toEqual({ value: 7 });
     expect(load).toHaveBeenCalledTimes(1);
+    expect(stderr).toHaveBeenCalledWith(expect.stringContaining('"message":"Cache read failed"'));
+    stderr.mockRestore();
   });
 });
 

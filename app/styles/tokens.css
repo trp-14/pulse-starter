@@ -1,0 +1,99 @@
+/*
+ * Design tokens: Frutiger Aero × Neumorphism.
+ * Every token is light-dark(Day, Night). `color-scheme` picks the side:
+ *   no choice yet → follows prefers-color-scheme · data-theme="day"|"night" → explicit.
+ * Values in the spec's token table are copied exactly; tokens marked "derived" are not in
+ * the table and were chosen to keep the same structure in Night (see PROGRESS.md, step 6).
+ * tests/contrast.test.ts parses this file and enforces WCAG AA for every text pairing.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Spec table */
+  --base: light-dark(#e6f0f7, #16243a);
+  --well: light-dark(#dfeaf3, #122035);
+  --shadow-dark: light-dark(rgba(112, 142, 175, 0.4), rgba(4, 10, 20, 0.65));
+  --shadow-light: light-dark(rgba(255, 255, 255, 0.95), rgba(60, 90, 130, 0.35));
+  --sky-1: light-dark(#4fb8ee, #0b1c3a);
+  --sky-2: light-dark(#8ed3f6, #12305a);
+  --sky-3: light-dark(#c9eafa, #1b3f6e);
+  --text: light-dark(#14304d, #eaf4ff);
+  --text-strong: light-dark(#0c2a47, #eaf4ff);
+  --muted: light-dark(#3d5d7c, #a9c1da);
+  --aqua: light-dark(#0e78c4, #5cc3ff);
+  --aqua-heat: light-dark(#1287d6, #5cc3ff);
+  --live: light-dark(#2fa33a, #6ee07a);
+  --live-text: light-dark(#1e6b2a, #6ee07a);
+  --alert: light-dark(#e5484d, #ff7a7e);
+  --alert-text: light-dark(#b0262c, #ff7a7e);
+
+  /* Status pills: text / soft gradient (Night: same hues, darker bg, lighter text — derived) */
+  --pill-paid-text: light-dark(#1b6626, #c2f5bd);
+  --pill-paid-bg-1: light-dark(#eafbe7, #23502c);
+  --pill-paid-bg-2: light-dark(#c9efc6, #1a3f22);
+  --pill-pending-text: light-dark(#7a4e00, #ffe3a3);
+  --pill-pending-bg-1: light-dark(#fff5dc, #54400f);
+  --pill-pending-bg-2: light-dark(#fce3a8, #42320b);
+  --pill-shipped-text: light-dark(#0a5590, #c4e6ff);
+  --pill-shipped-bg-1: light-dark(#e6f5ff, #174a78);
+  --pill-shipped-bg-2: light-dark(#c3e5fa, #113a60);
+  --pill-cancelled-text: light-dark(#9b1f25, #ffcdd0);
+  --pill-cancelled-bg-1: light-dark(#ffecec, #622228);
+  --pill-cancelled-bg-2: light-dark(#fad0d1, #4e1a1f);
+
+  /* Heatmap: aqua mixed into a near-white (#EEF5FA per spec); Night base is a dark well tone (derived) */
+  --heat-min: light-dark(#eef5fa, #1b2d47);
+
+  /* Derived surfaces */
+  --raised-border: light-dark(rgba(255, 255, 255, 0.75), rgba(150, 190, 235, 0.16));
+  --glass-bg: light-dark(rgba(255, 255, 255, 0.48), rgba(20, 38, 64, 0.58));
+  --glass-solid: light-dark(rgba(255, 255, 255, 0.86), rgba(20, 38, 64, 0.92));
+  --glass-border: light-dark(rgba(255, 255, 255, 0.85), rgba(150, 200, 255, 0.22));
+  --glass-shadow: light-dark(rgba(26, 96, 160, 0.2), rgba(0, 6, 18, 0.55));
+  --sheen: light-dark(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.1));
+  --row-alt: light-dark(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.045));
+  --grid-line: light-dark(rgba(61, 93, 124, 0.28), rgba(169, 193, 218, 0.22));
+  --crosshair: light-dark(#ffffff, #eaf4ff);
+  --focus: light-dark(#0e78c4, #5cc3ff);
+  --cloud: light-dark(rgba(255, 255, 255, 0.85), rgba(120, 160, 210, 0.12));
+  --grass: light-dark(rgba(120, 214, 110, 0.45), rgba(70, 160, 90, 0.22));
+  --bubble-rim: light-dark(rgba(255, 255, 255, 0.9), rgba(180, 220, 255, 0.45));
+  --bubble-tint: light-dark(rgba(170, 225, 255, 0.28), rgba(92, 195, 255, 0.12));
+
+  /* Gloss button (spec, identical in both themes) */
+  --gloss-1: #3a9fe0;
+  --gloss-2: #1474bf;
+  --gloss-3: #075a9c;
+  --gloss-4: #0e6bb0;
+  --gloss-border: #075c9c;
+  --on-gloss: #ffffff;
+  --gloss-text-shadow: rgba(3, 38, 72, 0.65);
+  --gloss-glow: rgba(7, 92, 156, 0.32);
+
+  /* Specular highlights and orb shading (spec: radial highlight at 32% 28%, white rim) */
+  --highlight: #ffffff;
+  --live-shade: #0b3d12;
+  --avatar-shade: #6d8aa8;
+
+  /* Customer avatar pastels (initials in --avatar-ink, same in both themes) */
+  --avatar-ink: #0c2a47;
+  --avatar-1: #fde2e4;
+  --avatar-2: #e2f0cb;
+  --avatar-3: #cde7f0;
+  --avatar-4: #fff1c9;
+  --avatar-5: #e4d8f5;
+  --avatar-6: #d7f2ec;
+
+  --radius-tile: 26px;
+  --radius-row: 14px;
+  --gap: 22px;
+}
+
+:root[data-theme='day'] {
+  color-scheme: light;
+}
+
+:root[data-theme='night'] {
+  color-scheme: dark;
+}

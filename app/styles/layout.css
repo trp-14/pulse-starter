@@ -1,0 +1,335 @@
+/* Atmosphere (sky band, clouds, bubbles, grass), shell, header and the bento grid. */
+
+.app {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+/* 560px sky band fading into --base. Decorative only. */
+.sky {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 560px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(to bottom, var(--sky-1) 0%, var(--sky-2) 34%, var(--sky-3) 68%, var(--base) 100%);
+}
+
+.cloud {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--cloud), transparent);
+  filter: blur(6px);
+}
+
+.cloud-1 {
+  width: 520px;
+  height: 160px;
+  top: 40px;
+  left: -80px;
+}
+.cloud-2 {
+  width: 420px;
+  height: 130px;
+  top: 120px;
+  right: 6%;
+}
+.cloud-3 {
+  width: 360px;
+  height: 110px;
+  top: 290px;
+  left: 38%;
+  opacity: 0.7;
+}
+
+.grass {
+  position: absolute;
+  left: -160px;
+  bottom: -120px;
+  width: 620px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--grass), transparent);
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--bubble-rim);
+  background: radial-gradient(circle at 32% 28%, var(--highlight) 0 7%, var(--bubble-tint) 38%, transparent 72%);
+  box-shadow:
+    inset -4px -6px 12px var(--bubble-tint),
+    inset 2px 3px 6px var(--bubble-rim);
+  will-change: transform;
+}
+
+.bubble-1 {
+  width: 64px;
+  height: 64px;
+  top: 150px;
+  left: 9%;
+}
+.bubble-2 {
+  width: 34px;
+  height: 34px;
+  top: 92px;
+  left: 46%;
+}
+.bubble-3 {
+  width: 88px;
+  height: 88px;
+  top: 210px;
+  right: 12%;
+}
+.bubble-4 {
+  width: 22px;
+  height: 22px;
+  top: 330px;
+  right: 30%;
+}
+
+/* Shell */
+.shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 18px 28px 48px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -80px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--base);
+  color: var(--text-strong);
+  font-weight: 800;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* Header: glass bar on the sky */
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 72px;
+  padding: 12px 14px 12px 20px;
+  border-radius: 24px;
+  margin-bottom: 26px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: auto;
+  min-width: 0;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    var(--highlight) 0 10%,
+    color-mix(in srgb, var(--aqua) 55%, var(--highlight)) 38%,
+    var(--aqua) 78%,
+    color-mix(in srgb, var(--aqua) 70%, var(--text-strong)) 100%
+  );
+  box-shadow: 0 6px 16px var(--glass-shadow);
+}
+
+.brand-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.brand-tagline {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kbd {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--well);
+}
+
+/* Bento grid: 12 columns, 22px gaps (neumorphic shadows need room). */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap);
+  align-items: start;
+}
+
+.kpi-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.kpi {
+  grid-column: span 2;
+}
+
+.kpi-hero {
+  grid-column: span 6;
+}
+
+.chart-tile {
+  grid-column: 1 / 9;
+  grid-row: 2;
+}
+
+/* The feed spans rows 2–3 but must not decide their height: height 0 removes it from track
+   sizing, min-height 100% then fills the area; its list scrolls if 10 rows don't fit. */
+.feed-tile {
+  grid-column: 9 / 13;
+  grid-row: 2 / 4;
+  height: 0;
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.heatmap-tile {
+  grid-column: 1 / 6;
+  grid-row: 3;
+  align-self: stretch;
+}
+
+.stock-tile {
+  grid-column: 6 / 9;
+  grid-row: 3;
+  align-self: stretch;
+}
+
+.orders-tile {
+  grid-column: 1 / -1;
+  grid-row: 4;
+}
+
+.site-footer {
+  margin-top: 36px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Tablet */
+@media (max-width: 1199px) {
+  .kpi-hero {
+    grid-column: 1 / -1;
+  }
+
+  .kpi {
+    grid-column: span 4;
+  }
+
+  .chart-tile,
+  .heatmap-tile,
+  .orders-tile {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .feed-tile {
+    grid-column: 1 / 8;
+    grid-row: auto;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .feed-scroll {
+    overflow: visible;
+  }
+
+  .stock-tile {
+    grid-column: 8 / -1;
+    grid-row: auto;
+  }
+}
+
+/* Mobile (375px target): one column, KPI glass cards as a swipeable row. */
+@media (max-width: 767px) {
+  .shell {
+    padding: 12px 16px 40px;
+  }
+
+  .site-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header-simulate {
+    order: 3;
+    width: 100%;
+  }
+
+  .header-simulate > * {
+    width: 100%;
+  }
+
+  .bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chart-tile,
+  .feed-tile,
+  .heatmap-tile,
+  .stock-tile,
+  .orders-tile {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .kpi-grid {
+    display: flex;
+    gap: 14px;
+    margin: 0 -16px;
+    padding: 4px 16px 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .kpi-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kpi,
+  .kpi-hero {
+    flex: 0 0 84%;
+    scroll-snap-align: center;
+  }
+}

@@ -1,9 +1,11 @@
 'use client';
 
-import { useId, useMemo, useState, type KeyboardEvent } from 'react';
+import { useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import type { Heatmap } from '@/types';
 import { useElementWidth } from '@/hooks/useElementWidth';
+import { gsap, MOTION, useGSAP } from '@/hooks/useGsap';
 import { usePolling } from '@/hooks/usePolling';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { formatHourIndex } from '@/lib/format';
 import { zonedParts } from '@/lib/time';
 import { heatmapSchema } from '@/lib/validation/responses';
@@ -20,6 +22,8 @@ import {
 
 export const HEATMAP_POLL_MS = 60_000;
 const FALLBACK_WIDTH = 520;
+/** Horizontal padding of .heatmap-well (16px each side), so the grid fills the well exactly. */
+const WELL_PADDING_X = 32;
 const HOUR_LABEL_EVERY = 3;
 const LEGEND_STEPS = [0, 0.25, 0.5, 0.75, 1] as const;
 
@@ -40,16 +44,37 @@ function moveCell(key: string, cell: Cell, rows: number): Cell | null {
 
 export function OrdersHeatmap({ initial }: { initial: Heatmap }) {
   const { data, error, refresh } = usePolling('/api/orders/heatmap', heatmapSchema, initial, HEATMAP_POLL_MS);
-  const [containerRef, width] = useElementWidth<HTMLDivElement>(FALLBACK_WIDTH);
+  const [containerRef, width, measured] = useElementWidth<HTMLDivElement>(FALLBACK_WIDTH);
   const [active, setActive] = useState<Cell | null>(null);
   const titleId = useId();
   const rows = data.days.length;
-  const layout = heatmapLayout(width, rows);
+  const layout = heatmapLayout(width - WELL_PADDING_X, rows);
   const intensity = useMemo(() => intensityScale(data.max), [data.max]);
   const busiest = useMemo(() => busiestSlot(data), [data]);
   const now = zonedParts(new Date(data.generatedAt));
+  const reduced = useReducedMotion();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const revealed = useRef(false);
 
-  const activeDay = active ? data.days[active.day] : undefined;
+  // Cells fade in with a grid stagger once, when the real size is known (opacity only).
+  useGSAP(
+    () => {
+      if (!measured || revealed.current || !svgRef.current) return;
+      revealed.current = true;
+      if (reduced) {
+        gsap.fromTo(svgRef.current, { opacity: 0 }, { opacity: 1, duration: MOTION.fade });
+        return;
+      }
+      gsap.fromTo(
+        svgRef.current.querySelectorAll('.heat-cell'),
+        { opacity: 0 },
+        { opacity: 1, duration: 0.35, ease: 'power1.out', stagger: { grid: [rows, 24], from: 'start', amount: 0.7 } },
+      );
+    },
+    { dependencies: [measured, reduced] },
+  );
+
+  const activeDay = active ? data.days.at(active.day) : undefined;
   const activeCount = active ? (activeDay?.counts[active.hour] ?? 0) : 0;
   let headline = 'No orders in the last 7 days';
   if (activeDay && active) headline = `${activeDay.label} ${formatHourIndex(active.hour)} · ${ordersLabel(activeCount)}`;
@@ -65,7 +90,7 @@ export function OrdersHeatmap({ initial }: { initial: Heatmap }) {
   };
 
   return (
-    <section className="tile heatmap-tile" aria-labelledby={titleId}>
+    <section className="tile heatmap-tile" aria-labelledby={titleId} data-reveal>
       <header className="tile-header">
         <h2 id={titleId} className="tile-title">
           Orders heatmap
@@ -94,7 +119,13 @@ export function OrdersHeatmap({ initial }: { initial: Heatmap }) {
           onFocus={() => setActive((current) => current ?? { day: rows - 1, hour: now.hour })}
           onBlur={() => setActive(null)}
         >
-          <svg width={layout.width} height={layout.height} className="heatmap-svg" aria-hidden="true">
+          <svg
+            ref={svgRef}
+            width={layout.width}
+            height={layout.height}
+            className={measured ? 'heatmap-svg' : 'heatmap-svg is-pending'}
+            aria-hidden="true"
+          >
             {Array.from({ length: HOURS / HOUR_LABEL_EVERY }, (_, i) => i * HOUR_LABEL_EVERY).map((hour) => (
               <text
                 key={hour}
@@ -159,7 +190,8 @@ export function OrdersHeatmap({ initial }: { initial: Heatmap }) {
         <span>More</span>
       </div>
 
-      <table className="sr-only">
+      <div className="sr-only">
+        <table>
         <caption>Orders per hour for the last 7 days</caption>
         <thead>
           <tr>
@@ -183,7 +215,8 @@ export function OrdersHeatmap({ initial }: { initial: Heatmap }) {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </section>
   );
 }

@@ -1,0 +1,439 @@
+/*
+ * The four surfaces (spec "Surfaces"): raised, inset, glass, gloss — plus neumorphic controls and orbs.
+ * Lift/press effects cross-fade a second shadow layer (pseudo-element opacity); box-shadow is never animated.
+ */
+
+/* Raised: neumorphic tile */
+.raised,
+.tile {
+  position: relative;
+  background: var(--base);
+  border: 1px solid var(--raised-border);
+  border-radius: var(--radius-tile);
+  box-shadow:
+    10px 10px 22px var(--shadow-dark),
+    -10px -10px 22px var(--shadow-light);
+}
+
+/* Lift layer: a bigger shadow that fades in on hover (opacity + transform only). */
+.tile::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow:
+    16px 18px 34px var(--shadow-dark),
+    -12px -12px 28px var(--shadow-light);
+  opacity: 0;
+  transition: opacity 260ms ease;
+  pointer-events: none;
+}
+
+.tile {
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .tile:hover {
+    transform: translateY(-2px);
+  }
+
+  .tile:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Inset: pressed well */
+.inset,
+.chart-well,
+.heatmap-well,
+.segmented,
+.live-pill,
+.field input,
+.btn-cooldown {
+  background: var(--well);
+  box-shadow:
+    inset 5px 5px 11px var(--shadow-dark),
+    inset -5px -5px 11px var(--shadow-light);
+}
+
+/* Glass (Aero): header, the four KPI cards, tooltips, command palette */
+.glass {
+  position: relative;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 14px 34px var(--glass-shadow);
+  isolation: isolate;
+}
+
+/* Sheen: white → transparent over the top ~48%, curved bottom edge. */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 52% 0;
+  border-radius: inherit;
+  border-bottom-left-radius: 50% 22%;
+  border-bottom-right-radius: 50% 22%;
+  background: linear-gradient(to bottom, var(--sheen), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Same look without backdrop-filter, for things that can sit over scrolling content (toast, ticker). */
+.glass-lite {
+  position: relative;
+  background: var(--glass-solid);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 14px 34px var(--glass-shadow);
+  isolation: isolate;
+}
+
+.glass-lite::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 52% 0;
+  border-radius: inherit;
+  border-bottom-left-radius: 50% 22%;
+  border-bottom-right-radius: 50% 22%;
+  background: linear-gradient(to bottom, var(--sheen), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Neumorphic controls */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--raised-border);
+  border-radius: 999px;
+  background: var(--base);
+  color: var(--text-strong);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow:
+    5px 5px 12px var(--shadow-dark),
+    -5px -5px 12px var(--shadow-light);
+}
+
+/* Press: inset layer fades in for the press (raised → inset). */
+.btn::after,
+.btn-gloss::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 4px 4px 9px var(--shadow-dark),
+    inset -4px -4px 9px var(--shadow-light);
+  opacity: 0;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+
+.btn:active::after,
+.btn-gloss:active::after,
+.btn-gloss.is-pressed::after {
+  opacity: 1;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Gloss (Aero): primary actions only — Simulate, active page, Clear filters.
+   19px/800 white text = WCAG "large text"; see tests/contrast.test.ts. */
+.btn-gloss {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0 24px;
+  border: 1px solid var(--gloss-border);
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    var(--gloss-1) 0%,
+    var(--gloss-2) 50%,
+    var(--gloss-3) 50%,
+    var(--gloss-4) 100%
+  );
+  color: var(--on-gloss);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 0 var(--gloss-text-shadow);
+  cursor: pointer;
+  box-shadow:
+    0 8px 18px var(--gloss-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  isolation: isolate;
+}
+
+/* Inner top highlight pill (white 75% → 8%), kept above the glyphs. */
+.btn-gloss::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 10%;
+  right: 10%;
+  height: 40%;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.08));
+  pointer-events: none;
+  z-index: -1;
+}
+
+.btn-gloss:disabled {
+  cursor: progress;
+}
+
+/* Rate-limited Simulate: a disabled inset pill with the countdown. */
+.btn-cooldown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 15px;
+  cursor: not-allowed;
+}
+
+/* Segmented control: an inset well; the chosen option pops out as a small raised pad. */
+.segmented {
+  display: inline-flex;
+  gap: 4px;
+  padding: 5px;
+  border: 0;
+  margin: 0;
+  border-radius: 999px;
+  min-width: 0;
+}
+
+.segmented-option {
+  position: relative;
+  display: inline-flex;
+}
+
+.segmented-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.segmented-option span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+.segmented-option input:checked + span {
+  color: var(--text-strong);
+  background: var(--base);
+  box-shadow:
+    4px 4px 10px var(--shadow-dark),
+    -4px -4px 10px var(--shadow-light);
+}
+
+.segmented-option input:focus-visible + span {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Orbs */
+.live-orb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: none;
+  background: radial-gradient(
+    circle at 32% 28%,
+    var(--highlight) 0 12%,
+    color-mix(in srgb, var(--live) 70%, var(--highlight)) 35%,
+    var(--live) 70%,
+    color-mix(in srgb, var(--live) 70%, var(--live-shade)) 100%
+  );
+  box-shadow: 0 0 10px color-mix(in srgb, var(--live) 70%, transparent);
+}
+
+.check-orb {
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    var(--highlight) 0 10%,
+    color-mix(in srgb, var(--live) 55%, var(--highlight)) 38%,
+    var(--live) 78%,
+    color-mix(in srgb, var(--live) 65%, var(--live-shade)) 100%
+  );
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--live) 40%, transparent);
+}
+
+.check-orb::after {
+  content: '';
+  width: 20px;
+  height: 11px;
+  border-left: 4px solid var(--highlight);
+  border-bottom: 4px solid var(--highlight);
+  transform: translateY(-3px) rotate(-45deg);
+}
+
+.search-orb {
+  position: relative;
+  display: inline-block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--well);
+  box-shadow:
+    inset 5px 5px 11px var(--shadow-dark),
+    inset -5px -5px 11px var(--shadow-light);
+}
+
+.search-orb::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--muted);
+  border-radius: 50%;
+}
+
+.search-orb::after {
+  content: '';
+  position: absolute;
+  left: 33px;
+  top: 33px;
+  width: 9px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--muted);
+  transform: rotate(45deg);
+}
+
+.avatar-orb {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--avatar-ink);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  --tone: var(--avatar-1);
+  background: radial-gradient(
+    circle at 32% 28%,
+    var(--highlight) 0 8%,
+    var(--tone) 46%,
+    color-mix(in srgb, var(--tone) 80%, var(--avatar-shade)) 100%
+  );
+  box-shadow:
+    0 4px 10px var(--shadow-dark),
+    inset 0 -2px 4px rgba(12, 42, 71, 0.08);
+}
+
+.avatar-tone-2 {
+  --tone: var(--avatar-2);
+}
+.avatar-tone-3 {
+  --tone: var(--avatar-3);
+}
+.avatar-tone-4 {
+  --tone: var(--avatar-4);
+}
+.avatar-tone-5 {
+  --tone: var(--avatar-5);
+}
+.avatar-tone-6 {
+  --tone: var(--avatar-6);
+}
+
+/* Status pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.status-paid {
+  color: var(--pill-paid-text);
+  background: linear-gradient(to bottom, var(--pill-paid-bg-1), var(--pill-paid-bg-2));
+}
+.status-pending {
+  color: var(--pill-pending-text);
+  background: linear-gradient(to bottom, var(--pill-pending-bg-1), var(--pill-pending-bg-2));
+}
+.status-shipped {
+  color: var(--pill-shipped-text);
+  background: linear-gradient(to bottom, var(--pill-shipped-bg-1), var(--pill-shipped-bg-2));
+}
+.status-cancelled {
+  color: var(--pill-cancelled-text);
+  background: linear-gradient(to bottom, var(--pill-cancelled-bg-1), var(--pill-cancelled-bg-2));
+}
+
+:root[data-theme='night'] .status-pill {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* LIVE pill: inset well with the green orb */
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  color: var(--live-text);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.live-pill.is-paused {
+  color: var(--muted);
+}
+
+.live-pill.is-paused .live-orb {
+  filter: grayscale(1);
+  box-shadow: none;
+}

@@ -32,11 +32,18 @@ export function usePolling<T>(
   schema: z.ZodType<T>,
   initial: T,
   intervalMs: number = POLL_INTERVAL_MS,
+  /** Called with fresh data right before it is committed (e.g. to capture a GSAP Flip state). */
+  onData?: (next: T) => void,
 ): PollingState<T> {
   const [data, setData] = useState<T>(initial);
   const [error, setError] = useState<ApiRequestError | null>(null);
   const [paused, setPaused] = useState(false);
   const tickRef = useRef<() => void>(() => undefined);
+  const onDataRef = useRef(onData);
+
+  useEffect(() => {
+    onDataRef.current = onData;
+  }, [onData]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -54,7 +61,9 @@ export function usePolling<T>(
       const current = new AbortController();
       controller = current;
       try {
-        setData(await fetchJson(url, schema, { signal: current.signal }));
+        const next = await fetchJson(url, schema, { signal: current.signal });
+        onDataRef.current?.(next);
+        setData(next);
         lastError = null;
         setError(null);
       } catch (caught) {
