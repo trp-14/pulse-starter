@@ -10,6 +10,7 @@ import { formatHourIndex } from '@/lib/format';
 import { zonedParts } from '@/lib/time';
 import { heatmapSchema } from '@/lib/validation/responses';
 import { InlineError } from '@/components/ui/InlineError';
+import { HeatmapGridSkeleton } from '@/components/ui/Skeleton';
 import {
   busiestSlot,
   cellOffset,
@@ -119,6 +120,7 @@ export function OrdersHeatmap({ initial }: { initial: Heatmap }) {
           onFocus={() => setActive((current) => current ?? { day: rows - 1, hour: now.hour })}
           onBlur={() => setActive(null)}
         >
+          {measured ? null : <HeatmapGridSkeleton />}
           <svg
             ref={svgRef}
             width={layout.width}

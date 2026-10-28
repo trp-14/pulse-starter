@@ -5,6 +5,7 @@
 @import './styles/layout.css';
 @import './styles/components.css';
 @import './styles/motion.css';
+@import './styles/polish.css';
 
 /* Expose tokens to Tailwind utilities (bg-base, text-muted, …) without duplicating values. */
 @theme inline {

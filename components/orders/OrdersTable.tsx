@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import type { OrderSortField, OrdersPage, OrdersQuery } from '@/types';
+import { useEffect, useRef, useState } from 'react';
+import type { OrderSortField, OrderStatus, OrdersPage, OrdersQuery } from '@/types';
+import { onOrdersStatus } from '@/lib/client/events';
 import { formatCurrency, formatDateTime, formatInteger } from '@/lib/format';
 import { InlineError } from '@/components/ui/InlineError';
+import { RowsSkeleton } from '@/components/ui/Skeleton';
 import { OrdersFilters } from './OrdersFilters';
 import { OrdersPagination } from './OrdersPagination';
 import { StatusPill } from './StatusPill';
@@ -33,10 +35,52 @@ function SortHeader({ field, label, query, onSort, numeric = false }: SortHeader
   );
 }
 
-export function OrdersTable({ initial }: { initial: OrdersPage }) {
+const ordersCountLabel = (total: number): string => `${formatInteger(total)} ${total === 1 ? 'order' : 'orders'}`;
+
+function OrdersRows({ page }: { page: OrdersPage }) {
+  return (
+    <tbody>
+      {page.items.map((order) => (
+        <tr key={order.id}>
+          <td data-label="Order" className="tabular-nums">
+            #{order.id}
+          </td>
+          <td data-label="Customer">{order.customerName}</td>
+          <td data-label="Status">
+            <StatusPill status={order.status} />
+          </td>
+          <td data-label="Items" className="num tabular-nums">
+            {order.itemCount}
+          </td>
+          <td data-label="Total" className="num tabular-nums">
+            {formatCurrency(order.total)}
+          </td>
+          <td data-label="Placed" className="tabular-nums">
+            <time dateTime={order.createdAt}>{formatDateTime(order.createdAt)}</time>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  );
+}
+
+export function OrdersTable({ initial }: { initial: OrdersPage | null }) {
   const table = useOrdersTable(initial);
   const [resetKey, setResetKey] = useState(0);
   const { query, page, loading, error } = table;
+
+  // The command palette can set the status filter; always use the latest `filter`.
+  const filterRef = useRef(table.filter);
+  useEffect(() => {
+    filterRef.current = table.filter;
+  });
+  useEffect(
+    () =>
+      onOrdersStatus((status: OrderStatus | undefined) => {
+        void filterRef.current({ status });
+      }),
+    [],
+  );
 
   const onSort = (field: OrderSortField) => {
     const dir = query.sort === field && query.dir === 'desc' ? 'asc' : 'desc';
@@ -51,11 +95,11 @@ export function OrdersTable({ initial }: { initial: OrdersPage }) {
   return (
     <section className="tile orders-tile" aria-labelledby="orders-title" id="orders" data-reveal>
       <header className="tile-header">
-        <h2 id="orders-title" className="tile-title">
+        <h2 id="orders-title" className="tile-title" tabIndex={-1}>
           Orders
         </h2>
         <p className="tile-meta" aria-live="polite">
-          {formatInteger(page.total)} {page.total === 1 ? 'order' : 'orders'}
+          {page ? ordersCountLabel(page.total) : ''}
         </p>
       </header>
 
@@ -65,10 +109,14 @@ export function OrdersTable({ initial }: { initial: OrdersPage }) {
         <InlineError message={error.message} requestId={error.requestId} onRetry={() => void table.retry()} />
       ) : null}
 
-      {page.items.length > 0 ? (
+      {page === null ? <RowsSkeleton rows={6} label="Loading orders" /> : null}
+
+      {page && page.items.length > 0 ? (
         <div className="table-scroll">
           <table className="orders-table" aria-busy={loading}>
-            <caption className="sr-only">Orders, page {page.page} of {page.totalPages}</caption>
+            <caption className="sr-only">
+              Orders, page {page.page} of {page.totalPages}
+            </caption>
             <thead>
               <tr>
                 <th scope="col">Order</th>
@@ -81,44 +129,31 @@ export function OrdersTable({ initial }: { initial: OrdersPage }) {
                 <SortHeader field="created_at" label="Placed" query={query} onSort={onSort} />
               </tr>
             </thead>
-            <tbody>
-              {page.items.map((order) => (
-                <tr key={order.id}>
-                  <td className="tabular-nums">#{order.id}</td>
-                  <td>{order.customerName}</td>
-                  <td>
-                    <StatusPill status={order.status} />
-                  </td>
-                  <td className="num tabular-nums">{order.itemCount}</td>
-                  <td className="num tabular-nums">{formatCurrency(order.total)}</td>
-                  <td className="tabular-nums">
-                    <time dateTime={order.createdAt}>{formatDateTime(order.createdAt)}</time>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            <OrdersRows page={page} />
           </table>
         </div>
-      ) : (
-        !loading && (
-          <div className="empty-state">
-            <span className="search-orb" aria-hidden="true" />
-            <p>No orders match these filters</p>
-            {hasActiveFilters(query) ? (
-              <button type="button" className="btn-gloss" onClick={clearFilters}>
-                Clear filters
-              </button>
-            ) : null}
-          </div>
-        )
-      )}
+      ) : null}
 
-      <OrdersPagination
-        page={page.page}
-        totalPages={page.totalPages}
-        disabled={loading}
-        onPage={(number) => void table.goToPage(number)}
-      />
+      {page && page.items.length === 0 && !loading ? (
+        <div className="empty-state">
+          <span className="search-orb" aria-hidden="true" />
+          <p>No orders match these filters</p>
+          {hasActiveFilters(query) ? (
+            <button type="button" className="btn-gloss" onClick={clearFilters}>
+              Clear filters
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
+      {page ? (
+        <OrdersPagination
+          page={page.page}
+          totalPages={page.totalPages}
+          disabled={loading}
+          onPage={(number) => void table.goToPage(number)}
+        />
+      ) : null}
     </section>
   );
 }

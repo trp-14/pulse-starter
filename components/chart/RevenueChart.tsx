@@ -9,6 +9,7 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { formatCurrency, formatHourRange, formatInteger } from '@/lib/format';
 import { revenueSeriesSchema } from '@/lib/validation/responses';
 import { InlineError } from '@/components/ui/InlineError';
+import { ChartCurveSkeleton } from '@/components/ui/Skeleton';
 import { buildRevenueGeometry, CHART_HEIGHT, CHART_MARGIN, nearestPointIndex } from './revenue-geometry';
 
 export const REVENUE_POLL_MS = 30_000;
@@ -117,7 +118,13 @@ export function RevenueChart({ initial }: { initial: RevenueSeries }) {
         onFocus={() => setActive((current) => current ?? geometry.points.length - 1)}
         onBlur={() => setActive(null)}
       >
-        <svg width={width} height={CHART_HEIGHT} className={measured ? 'chart-svg' : 'chart-svg is-pending'} aria-hidden="true">
+        {measured ? null : <ChartCurveSkeleton />}
+        <svg
+          width={width}
+          height={CHART_HEIGHT}
+          className={measured ? 'chart-svg' : 'chart-svg is-pending'}
+          aria-hidden="true"
+        >
           <defs>
             <linearGradient id={areaGradient} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" className="chart-area-stop-top" />

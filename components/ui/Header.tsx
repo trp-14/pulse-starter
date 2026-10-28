@@ -1,4 +1,5 @@
 import type { Theme } from '@/lib/theme';
+import { PaletteButton } from './PaletteButton';
 import { RushTicker } from './RushTicker';
 import { SimulateButton } from './SimulateButton';
 import { ThemeToggle } from './ThemeToggle';
@@ -17,6 +18,7 @@ export function Header({ serverTheme }: { serverTheme: Theme | null }) {
       {/* Reserved space between brand and controls: the RUSH MODE ticker appears here, so nothing shifts. */}
       <RushTicker />
       <div className="header-actions">
+        <PaletteButton />
         <ThemeToggle serverTheme={serverTheme} />
       </div>
       <div className="header-simulate">

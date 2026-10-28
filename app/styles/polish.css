@@ -1,0 +1,412 @@
+/* Command palette, skeletons, KPI pager and mobile polish (step 8). */
+
+/* Command palette: glass panel over a lightly blurred backdrop. */
+.palette {
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(560px, calc(100vh - 64px));
+  margin: 12vh auto auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  overflow: visible;
+}
+
+.palette::backdrop {
+  background: color-mix(in srgb, var(--sky-1) 18%, transparent);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.palette-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 26px;
+}
+
+.palette-search input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--well);
+  box-shadow:
+    inset 5px 5px 11px var(--shadow-dark),
+    inset -5px -5px 11px var(--shadow-light);
+  color: var(--text-strong);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.palette-search input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.palette-search input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.palette-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 6px 4px;
+}
+
+.palette-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 16px;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* The highlighted command is a small raised pad. */
+.palette-option.is-active {
+  background: var(--base);
+  color: var(--text-strong);
+  box-shadow:
+    4px 4px 10px var(--shadow-dark),
+    -4px -4px 10px var(--shadow-light);
+}
+
+.palette-hint {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.palette-empty,
+.palette-footer {
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.palette-button {
+  min-height: 44px;
+  padding: 0 14px;
+}
+
+/* Skeletons: soft shimmer pills (the shimmer only runs while something is loading). */
+.skeleton-pill {
+  position: relative;
+  display: block;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--well);
+  overflow: hidden;
+}
+
+.skeleton-pill.sk-tall {
+  height: 40px;
+}
+
+.sk-w-30 {
+  width: 30%;
+}
+.sk-w-45 {
+  width: 45%;
+}
+.sk-w-60 {
+  width: 60%;
+}
+.sk-w-80 {
+  width: 80%;
+}
+
+.skeleton-pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--sheen), transparent);
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-kpi {
+  justify-content: space-between;
+}
+
+.skeleton-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 0 12px;
+  border-radius: 18px;
+  background: var(--row-alt);
+}
+
+.skeleton-row .sk-w-30 {
+  width: 64px;
+}
+
+.skeleton-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--well);
+}
+
+.skeleton-chart-well {
+  height: 300px;
+}
+
+/* Chart skeleton: a faint curve in the inset well. */
+.skeleton-curve {
+  position: absolute;
+  inset: 16px 16px 30px 52px;
+  width: calc(100% - 68px);
+  height: calc(100% - 46px);
+}
+
+.skeleton-curve path {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.18;
+}
+
+/* Heatmap skeleton: the empty 7 × 24 grid. */
+.heatmap-well {
+  position: relative;
+}
+
+.skeleton-heatmap {
+  position: absolute;
+  inset: 32px 16px 16px 54px;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.skeleton-heatmap span {
+  border-radius: 4px;
+  background: var(--heat-min);
+}
+
+.skeleton-heatmap-well {
+  height: 170px;
+}
+
+/* KPI page indicator (mobile only): gloss pill for the current card, inset dots for the rest. */
+.kpi-pager {
+  display: none;
+}
+
+/* Comfortable touch targets wherever the pointer is coarse. */
+@media (pointer: coarse) {
+  .segmented-option span,
+  .theme-toggle .segmented-option span {
+    min-height: 44px;
+  }
+
+  .sort-button {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 767px) {
+  .palette-button {
+    padding: 0 12px;
+  }
+
+  .palette-button .kbd {
+    display: none;
+  }
+
+  .kpi-pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    margin-top: -6px;
+  }
+
+  /* 44px hit area around each small dot. */
+  .kpi-pager-dot {
+    position: relative;
+    width: 32px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .kpi-pager-dot::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border-radius: 999px;
+    background: var(--well);
+    box-shadow:
+      inset 2px 2px 4px var(--shadow-dark),
+      inset -2px -2px 4px var(--shadow-light);
+  }
+
+  .kpi-pager-dot.is-current::before {
+    width: 26px;
+    margin-left: -13px;
+    background: linear-gradient(to bottom, var(--gloss-1) 0%, var(--gloss-2) 50%, var(--gloss-3) 50%, var(--gloss-4) 100%);
+    box-shadow: 0 2px 6px var(--gloss-glow);
+  }
+
+  /* Status filters: a horizontally scrolling row of raised pills. */
+  .orders-filters .segmented {
+    gap: 10px;
+    padding: 6px 2px 10px;
+    margin: 0 -2px;
+    background: none;
+    box-shadow: none;
+  }
+
+  .orders-filters .segmented-option span {
+    background: var(--base);
+    border: 1px solid var(--raised-border);
+    box-shadow:
+      4px 4px 10px var(--shadow-dark),
+      -4px -4px 10px var(--shadow-light);
+    min-height: 44px;
+    padding: 0 18px;
+  }
+
+  /* Selected pill is pressed in. */
+  .orders-filters .segmented-option input:checked + span {
+    background: var(--well);
+    box-shadow:
+      inset 4px 4px 9px var(--shadow-dark),
+      inset -4px -4px 9px var(--shadow-light);
+  }
+
+  /* Orders table → a list of soft pill rows. */
+  .table-scroll {
+    overflow: visible;
+  }
+
+  .orders-table,
+  .orders-table tbody,
+  .orders-table tr,
+  .orders-table td {
+    display: block;
+  }
+
+  .orders-table thead {
+    display: none;
+  }
+
+  .orders-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .orders-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-row);
+    background: var(--row-alt);
+  }
+
+  .orders-table td,
+  .orders-table tbody tr:nth-child(odd) td {
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    white-space: normal;
+  }
+
+  .orders-table td:first-child,
+  .orders-table td:last-child {
+    border-radius: 0;
+  }
+
+  /* Customer + total on the first line, order/items/time below, status on the right. */
+  .orders-table td[data-label='Customer'] {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .orders-table td[data-label='Total'] {
+    grid-column: 2;
+    grid-row: 1;
+    font-weight: 800;
+    color: var(--text-strong);
+  }
+
+  .orders-table td[data-label='Order'] {
+    grid-column: 1;
+    grid-row: 2;
+    font-size: 13px;
+  }
+
+  .orders-table td[data-label='Status'] {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+
+  .orders-table td[data-label='Placed'] {
+    grid-column: 1;
+    grid-row: 3;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .orders-table td[data-label='Items'] {
+    grid-column: 2;
+    grid-row: 3;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .orders-table td[data-label='Items']::after {
+    content: ' items';
+  }
+
+  .pagination-pages .pagination-page:not([aria-current]) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-pill::after {
+    animation: none;
+    opacity: 0;
+  }
+}

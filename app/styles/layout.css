@@ -184,8 +184,13 @@
   align-items: start;
 }
 
-.kpi-grid {
+.kpi-block {
   grid-column: 1 / -1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.kpi-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: var(--gap);

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { gsap, useGSAP } from '@/hooks/useGsap';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { ApiRequestError, fetchJson } from '@/lib/client/fetch-json';
-import { announceRush, requestDashboardRefresh } from '@/lib/client/events';
+import { announceRush, onSimulateRequest, requestDashboardRefresh } from '@/lib/client/events';
 import { simulateResultSchema } from '@/lib/validation/responses';
 import { Toast, type ToastMessage } from './Toast';
 
@@ -92,6 +92,7 @@ export function SimulateButton() {
   };
 
   const simulate = async () => {
+    if (busy) return;
     // Visible "press in" (raised → inset) for 120ms, also for keyboard activation.
     setPressed(true);
     clearTimeout(pressTimer.current);
@@ -119,6 +120,13 @@ export function SimulateButton() {
       setBusy(false);
     }
   };
+
+  // The command palette can trigger a rush too; always call the latest `simulate`.
+  const simulateRef = useRef(simulate);
+  useEffect(() => {
+    simulateRef.current = simulate;
+  });
+  useEffect(() => onSimulateRequest(() => void simulateRef.current()), []);
 
   return (
     <>

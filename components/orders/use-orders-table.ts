@@ -27,15 +27,16 @@ export function ordersUrl(query: OrdersQuery): string {
 export const hasActiveFilters = (query: OrdersQuery): boolean =>
   Boolean(query.status || query.from || query.to || query.q);
 
-/** Orders table state. Fetches are triggered by user events, never by effects. */
-export function useOrdersTable(initialPage: OrdersPage) {
+/**
+ * Orders table state. Fetches are triggered by user events, never by effects. `initialPage` is
+ * null when the server couldn't load it; then the first page is fetched right after mount.
+ */
+export function useOrdersTable(initialPage: OrdersPage | null) {
   const [query, setQuery] = useState<OrdersQuery>(DEFAULT_ORDERS_QUERY);
-  const [page, setPage] = useState<OrdersPage>(initialPage);
-  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState<OrdersPage | null>(initialPage);
+  const [loading, setLoading] = useState(initialPage === null);
   const [error, setError] = useState<ApiRequestError | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
-
-  useEffect(() => () => controllerRef.current?.abort(), []);
 
   const load = useCallback(async (next: OrdersQuery) => {
     controllerRef.current?.abort();
@@ -54,6 +55,15 @@ export function useOrdersTable(initialPage: OrdersPage) {
     }
   }, []);
 
+  useEffect(() => {
+    // Server-side load failed: fetch the first page on the client (deferred, not inside the effect body).
+    const timer = initialPage === null ? setTimeout(() => void load(DEFAULT_ORDERS_QUERY), 0) : undefined;
+    return () => {
+      clearTimeout(timer);
+      controllerRef.current?.abort();
+    };
+  }, [initialPage, load]);
+
   return {
     query,
     page,
@@ -64,6 +74,5 @@ export function useOrdersTable(initialPage: OrdersPage) {
     goToPage: (pageNumber: number) => load({ ...query, page: pageNumber }),
     retry: () => load(query),
     clear: () => load(DEFAULT_ORDERS_QUERY),
-    refresh: () => load(query),
   };
 }
