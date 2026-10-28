@@ -8,7 +8,8 @@ import { DEFAULT_ORDERS_QUERY } from '@/lib/validation/orders';
 export default async function DashboardPage() {
   // Live data: render per request (no build-time prerender), straight from the services, so first paint has data.
   await connection();
-  const [kpis, orders] = await Promise.all([getKpis(), listOrders(DEFAULT_ORDERS_QUERY)]);
+  const context = { requestId: crypto.randomUUID() };
+  const [kpis, orders] = await Promise.all([getKpis(context), listOrders(DEFAULT_ORDERS_QUERY)]);
 
   return (
     <main className="dashboard">

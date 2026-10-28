@@ -3,7 +3,7 @@ import { getKpis } from '@/lib/services/kpis';
 
 export const GET = apiRoute(async (request, { requestId }) => {
   if (!parseQuery(request, noQuerySchema)) return badRequest(requestId);
-  return json(await getKpis(), requestId);
+  return json(await getKpis({ requestId }), requestId);
 });
 
 const notAllowed = methodNotAllowed(['GET', 'HEAD']);
