@@ -1,3 +1,4 @@
+import './zod-config';
 import { z } from 'zod';
 
 export const MIN_RUSH_ORDERS = 10;

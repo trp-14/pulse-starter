@@ -2,6 +2,7 @@
 // parsing API responses and the server reading values back from Redis.
 // Each one `satisfies` its type in types/index.ts, so the two can't drift apart.
 
+import './zod-config';
 import { z } from 'zod';
 import type {
   ApiErrorBody,

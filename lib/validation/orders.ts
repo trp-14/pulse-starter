@@ -1,3 +1,4 @@
+import './zod-config';
 import { z } from 'zod';
 import { ORDER_SORT_FIELDS, ORDER_STATUSES, SORT_DIRECTIONS, type OrdersQuery } from '@/types';
 import { DAY_MS } from '@/lib/time';
