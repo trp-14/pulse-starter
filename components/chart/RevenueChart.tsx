@@ -194,23 +194,23 @@ export function RevenueChart({ initial }: { initial: RevenueSeries }) {
       </p>
       <div className="sr-only">
         <table>
-        <caption>Revenue per hour, last 24 hours</caption>
-        <thead>
-          <tr>
-            <th scope="col">Hour</th>
-            <th scope="col">Revenue</th>
-            <th scope="col">Orders</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.buckets.map((bucket) => (
-            <tr key={bucket.hourStart}>
-              <th scope="row">{formatHourRange(bucket.hourStart)}</th>
-              <td>{formatCurrency(bucket.revenue)}</td>
-              <td>{bucket.orders}</td>
+          <caption>Revenue per hour, last 24 hours</caption>
+          <thead>
+            <tr>
+              <th scope="col">Hour</th>
+              <th scope="col">Revenue</th>
+              <th scope="col">Orders</th>
             </tr>
-          ))}
-        </tbody>
+          </thead>
+          <tbody>
+            {data.buckets.map((bucket) => (
+              <tr key={bucket.hourStart}>
+                <th scope="row">{formatHourRange(bucket.hourStart)}</th>
+                <td>{formatCurrency(bucket.revenue)}</td>
+                <td>{bucket.orders}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </section>

@@ -192,29 +192,29 @@ export function OrdersHeatmap({ initial }: { initial: Heatmap }) {
 
       <div className="sr-only">
         <table>
-        <caption>Orders per hour for the last 7 days</caption>
-        <thead>
-          <tr>
-            <th scope="col">Day</th>
-            {Array.from({ length: HOURS }, (_, hour) => (
-              <th key={hour} scope="col">
-                {formatHourIndex(hour)}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.days.map((day) => (
-            <tr key={day.date}>
-              <th scope="row">
-                {day.label} {day.date}
-              </th>
-              {day.counts.map((count, hour) => (
-                <td key={hour}>{count}</td>
+          <caption>Orders per hour for the last 7 days</caption>
+          <thead>
+            <tr>
+              <th scope="col">Day</th>
+              {Array.from({ length: HOURS }, (_, hour) => (
+                <th key={hour} scope="col">
+                  {formatHourIndex(hour)}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
+          </thead>
+          <tbody>
+            {data.days.map((day) => (
+              <tr key={day.date}>
+                <th scope="row">
+                  {day.label} {day.date}
+                </th>
+                {day.counts.map((count, hour) => (
+                  <td key={hour}>{count}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </section>
