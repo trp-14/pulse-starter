@@ -7,7 +7,6 @@ import { OrdersTable } from '@/components/orders/OrdersTable';
 import { LowStockList } from '@/components/stock/LowStockList';
 import { Header } from '@/components/ui/Header';
 import { PageReveal } from '@/components/ui/PageReveal';
-import { RushTicker } from '@/components/ui/RushTicker';
 import { getServerTheme } from '@/lib/server/theme';
 import { getHeatmap } from '@/lib/services/heatmap';
 import { getKpis } from '@/lib/services/kpis';
@@ -34,7 +33,6 @@ export default async function DashboardPage() {
   return (
     <>
       <Header serverTheme={theme} />
-      <RushTicker />
       <PageReveal />
       <main id="dashboard" className="bento" tabIndex={-1}>
         <KpiGrid initial={kpis} />

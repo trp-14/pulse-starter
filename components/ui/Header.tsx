@@ -1,4 +1,5 @@
 import type { Theme } from '@/lib/theme';
+import { RushTicker } from './RushTicker';
 import { SimulateButton } from './SimulateButton';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -13,6 +14,8 @@ export function Header({ serverTheme }: { serverTheme: Theme | null }) {
           <p className="brand-tagline">Live control room</p>
         </div>
       </div>
+      {/* Reserved space between brand and controls: the RUSH MODE ticker appears here, so nothing shifts. */}
+      <RushTicker />
       <div className="header-actions">
         <ThemeToggle serverTheme={serverTheme} />
       </div>
