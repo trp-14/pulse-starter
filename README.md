@@ -182,8 +182,6 @@ Creates 10–20 random orders timestamped across the last few seconds, decrement
 - **Why the simulate endpoint is rate-limited.** It's the only endpoint that writes. Without a limit, a single script could create millions of orders, empty the stock, fill the free-tier database and ruin the demo for everyone else. 5 requests a minute per IP (plus a cap of 20 orders per request) is plenty for a human and useless for abuse. When the limit hits, the button turns into a countdown and a friendly toast explains why.
 - **Why polling pauses when the tab is hidden.** A dashboard left open in a background tab would otherwise poll forever, burning Upstash and Neon free-tier quotas (and the visitor's battery) for numbers nobody sees. Hidden tab → timers stop and in-flight requests are aborted. Visible again → one immediate refresh, then the normal interval.
 
-More in-depth reasoning, written for interviews, is in [`DECISIONS.md`](DECISIONS.md).
-
 ## Project structure
 
 ```

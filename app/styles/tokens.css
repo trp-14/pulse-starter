@@ -3,7 +3,7 @@
  * Every token is light-dark(Day, Night). `color-scheme` picks the side:
  *   no choice yet → follows prefers-color-scheme · data-theme="day"|"night" → explicit.
  * Values in the spec's token table are copied exactly; tokens marked "derived" are not in
- * the table and were chosen to keep the same structure in Night (see PROGRESS.md, step 6).
+ * the table and were chosen to keep the same structure in Night.
  * tests/contrast.test.ts parses this file and enforces WCAG AA for every text pairing.
  */
 

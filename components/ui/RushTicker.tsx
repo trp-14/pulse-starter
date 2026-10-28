@@ -9,8 +9,9 @@ import { formatCurrency } from '@/lib/format';
 const STATIC_LIMIT = 6;
 
 /**
- * RUSH MODE ticker: a glass bar (no backdrop-filter, see PROGRESS step 6) that slides in at the top
- * and scrolls the incoming orders across for ~8s, then eases away. Fixed position, so nothing shifts.
+ * RUSH MODE ticker: a glass bar (glass look without backdrop-filter, which is reserved for the header,
+ * KPI cards, tooltips and palette) that scrolls the incoming orders across for ~8s, then eases away.
+ * It lives in the header's reserved middle space (a floating overlay on mobile), so nothing shifts.
  * Reduced motion: it fades in as a static list.
  */
 export function RushTicker() {
