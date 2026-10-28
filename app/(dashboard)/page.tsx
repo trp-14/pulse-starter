@@ -1,6 +1,7 @@
 import { connection } from 'next/server';
 import { KpiGrid } from '@/components/kpi/KpiGrid';
 import { OrdersTable } from '@/components/orders/OrdersTable';
+import { SimulateButton } from '@/components/ui/SimulateButton';
 import { getKpis } from '@/lib/services/kpis';
 import { listOrders } from '@/lib/services/orders';
 import { DEFAULT_ORDERS_QUERY } from '@/lib/validation/orders';
@@ -14,6 +15,7 @@ export default async function DashboardPage() {
   return (
     <main className="dashboard">
       <h1>Pulse</h1>
+      <SimulateButton />
       <KpiGrid initial={kpis} />
       <OrdersTable initial={orders} />
     </main>
