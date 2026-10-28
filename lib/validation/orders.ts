@@ -38,3 +38,6 @@ export const ordersQuerySchema = z
       ctx.addIssue({ code: 'custom', path: ['to'], message: `date range is limited to ${MAX_RANGE_DAYS} days` });
     }
   }) satisfies z.ZodType<OrdersQuery, unknown>;
+
+/** What an empty query string means: shared by the server's first paint and the client table. */
+export const DEFAULT_ORDERS_QUERY: OrdersQuery = ordersQuerySchema.parse({});
