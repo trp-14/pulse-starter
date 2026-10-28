@@ -609,6 +609,18 @@ th[aria-sort='descending'] .sort-indicator {
     padding: 18px 16px 20px;
   }
 
+  /* Status filters scroll horizontally instead of widening the page. */
+  .orders-filters .segmented {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .orders-filters .field,
+  .orders-filters .field input[type='search'] {
+    width: 100%;
+  }
+
   .feed-row {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
