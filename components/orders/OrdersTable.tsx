@@ -51,6 +51,8 @@ function OrdersRows({ page }: { page: OrdersPage }) {
           </td>
           <td data-label="Items" className="num tabular-nums">
             {order.itemCount}
+            {/* The column header names the unit on desktop; the mobile card needs it inline. */}
+            <span className="mobile-only"> {order.itemCount === 1 ? 'item' : 'items'}</span>
           </td>
           <td data-label="Total" className="num tabular-nums">
             {formatCurrency(order.total)}

@@ -218,6 +218,10 @@
   height: 170px;
 }
 
+.mobile-only {
+  display: none;
+}
+
 /* KPI page indicator (mobile only): gloss pill for the current card, inset dots for the rest. */
 .kpi-pager {
   display: none;
@@ -395,8 +399,8 @@
     color: var(--muted);
   }
 
-  .orders-table td[data-label='Items']::after {
-    content: ' items';
+  .orders-table .mobile-only {
+    display: inline;
   }
 
   .pagination-pages .pagination-page:not([aria-current]) {
