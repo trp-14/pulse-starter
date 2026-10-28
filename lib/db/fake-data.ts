@@ -1,8 +1,9 @@
 // Deterministic synthetic data for a fictional lifestyle/apparel store.
 // One generator feeds both the in-memory mock repository and scripts/seed.ts,
 // so mock mode and a freshly seeded Neon database show the same shop.
-// Deliberately free of `server-only` so the seed CLI can import it.
+// (The seed CLI runs with --conditions=react-server, so `server-only` resolves to a no-op there.)
 
+import 'server-only';
 import type { OrderStatus } from '@/types';
 import { DAY_MS, zonedParts } from '@/lib/time';
 import { roundMoney } from '@/lib/money';
