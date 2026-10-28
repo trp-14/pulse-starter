@@ -23,11 +23,28 @@ const hourMinute = new Intl.DateTimeFormat(STORE_LOCALE, {
   hourCycle: 'h23',
 });
 
+const compactCurrency = new Intl.NumberFormat(STORE_LOCALE, {
+  style: 'currency',
+  currency: 'USD',
+  notation: 'compact',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 1,
+});
+
 export const formatCurrency = (value: number): string => currency.format(value);
+/** Axis ticks: $0, $500, $1.2K. */
+export const formatCompactCurrency = (value: number): string => compactCurrency.format(value);
 export const formatCurrencyWhole = (value: number): string => currencyWhole.format(value);
 export const formatInteger = (value: number): string => integer.format(value);
 export const formatDateTime = (iso: string): string => dateTime.format(new Date(iso));
 export const formatHour = (iso: string): string => hourMinute.format(new Date(iso));
+
+/** "14:00–15:00" for the hour starting at `iso`. */
+export const formatHourRange = (iso: string): string =>
+  `${formatHour(iso)}–${hourMinute.format(new Date(Date.parse(iso) + 3_600_000))}`;
+
+/** "19:00" for a store-local hour index. */
+export const formatHourIndex = (hour: number): string => `${String(hour).padStart(2, '0')}:00`;
 
 /** "12s ago", "5m ago", "3h ago", "2d ago". */
 export function formatRelative(iso: string, now: number): string {
